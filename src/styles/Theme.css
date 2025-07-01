@@ -1,0 +1,42 @@
+@theme {
+  /* Base Colors */
+  --color-base-bg: #171717; /* Background base */
+  --color-base-secondary: #f8fafc; /* Background secondary */
+  --color-surface-light: #ffffff; /* container */
+  --color-surface-dark: #272727; /* container */
+
+  /* Text Colors */
+
+  --color-light-span: #989898; /* Secondary text color */
+
+  /* Accent */
+  --color-accent: #39937b;
+
+  /* Rounded */
+  --radius-sm: 10px;
+  --radius-md: 20px;
+  --radius-lg: 30px;
+  --radius-xl: 40px;
+  --radius-full: 999px;
+
+  /* SideBar */
+  --sidebar-background: 0 0% 98%;
+  --sidebar-foreground: 240 5.3% 26.1%;
+  --sidebar-primary: 240 5.9% 10%;
+
+  /* Fonts */
+  --font-Amiri_Arabic: "Amiri", serif;
+  --font-IBMPlexMono: "IBM Plex Mono", monospace;
+}
+
+body {
+  font-family: var(--font-Amiri_Arabic);
+  color: #000000;
+  background: var(--color-base-secondary);
+}
+
+.dark body {
+  font-family: var(--font-Amiri_Arabic);
+  background: var(--color-base-bg);
+  color: #ffffff;
+}

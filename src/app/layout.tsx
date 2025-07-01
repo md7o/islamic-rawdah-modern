@@ -1,15 +1,23 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
-import "./globals.css";
+import { IBM_Plex_Mono, IBM_Plex_Sans_Arabic, Amiri } from "next/font/google";
+import "./global.css";
+import Header from "@/components/layout/Header";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const IBMPlexSansArabic = IBM_Plex_Sans_Arabic({
+  variable: "--font-IBMPlexSansArabic",
   subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
+});
+const Amiri_Arabic = Amiri({
+  variable: "--font-Amiri",
+  subsets: ["latin"],
+  weight: ["400", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const IBMPlexMono = IBM_Plex_Mono({
+  variable: "--font-IBMPlexMono",
   subsets: ["latin"],
+  weight: ["100", "200", "300", "400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -23,11 +31,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        {children}
+    <html lang="ar" dir="rtl">
+      <body className={`${Amiri_Arabic.variable} ${IBMPlexMono.variable}`}>
+        <Header />
+        {/* Add top padding to account for fixed header */}
+        <main className="pt-20">{children}</main>
       </body>
     </html>
   );
