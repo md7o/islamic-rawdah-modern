@@ -2,7 +2,19 @@ import { Card } from "@/components/ui/shadcn/card";
 import { Book, ChevronDown, Newspaper } from "lucide-react";
 
 interface BookCardProps {
-  iconVariant?: "romance" | "mystery" | "fantasy";
+  iconVariant?:
+    | "romance"
+    | "mystery"
+    | "fantasy"
+    | "islamic"
+    | "science"
+    | "history"
+    | "literature"
+    | "philosophy"
+    | "biography"
+    | "hadith"
+    | "quran"
+    | "fiqh";
   icon?: "Book" | "Newspaper";
 
   title?: string;
@@ -21,11 +33,28 @@ export default function BookCard({
 }: BookCardProps) {
   // Default gradients for each variant
   const defaultGradients: Record<string, [string, string]> = {
-    romance: ["#713030", "#9c4e4e"], // pink-400, red-400
-    mystery: ["#a78bfa", "#60a5fa"], // purple-400, blue-400
-    fantasy: ["#34d399", "#22d3ee"], // emerald-400, cyan-400
+    romance: ["#713030", "#9c4e4e"], // Deep red/burgundy
+    mystery: ["#a78bfa", "#60a5fa"], // Purple to blue
+    fantasy: ["#34d399", "#22d3ee"], // Emerald to cyan
+    islamic: ["#059669", "#10b981"], // Islamic green variants
+    science: ["#3b82f6", "#1e40af"], // Blue gradient for science
+    history: ["#92400e", "#d97706"], // Amber/brown for history
+    literature: ["#7c3aed", "#a855f7"], // Purple gradient for literature
+    philosophy: ["#374151", "#6b7280"], // Gray gradient for philosophy
+    biography: ["#dc2626", "#ef4444"], // Red gradient for biography
+    hadith: ["#166534", "#22c55e"], // Deep green for hadith
+    quran: ["#064e3b", "#047857"], // Dark emerald for Quran
+    fiqh: ["#7c2d12", "#ea580c"], // Orange-brown for fiqh
   };
   const [from, to] = defaultGradients[iconVariant];
+
+  // Arabic pluralization for 'فصل'
+  function getFaslLabel(n?: number) {
+    if (!n) return "فصل";
+    // 3-10 => فصول, everything else => فصل
+    if (n >= 3 && n <= 10) return "فصول";
+    return "فصل";
+  }
 
   return (
     <div className="flex items-center justify-center ">
@@ -61,20 +90,18 @@ export default function BookCard({
         </div>
 
         {/* Content */}
-        <div className="px-6 space-y-5 pb-10">
+        <div className="px-4 space-y-5 pb-10">
           {" "}
           {/* Add bottom padding for arrow space */}
           {/* Title and Chapters Row */}
           <div className="flex flex-row items-start justify-between gap-4">
             <div className="flex-1">
-              <h1 className="text-xl font-bold text-right  line-clamp-3  group-hover:text-accent transition-colors duration-300">
+              <h1 className="text-lg text-right line-clamp-2 group-hover:text-accent transition-colors duration-300">
                 {title}
               </h1>
-              <p className="text-sm text-light-span text-right">كتاب إسلامي</p>
-            </div>
-            <div className="flex flex-col items-end text-right bg-gradient-to-br from-accent/10 to-accent/5 rounded-xl px-3 py-2 min-w-[60px]">
-              <span className="text-2xl font-bold text-accent">{chapters}</span>
-              <span className="text-xs text-gray-600 font-medium">فصل</span>
+              <p className="text-md pt-2 text-accent text-right">
+                {chapters} {getFaslLabel(chapters)}
+              </p>
             </div>
           </div>
         </div>

@@ -1,21 +1,23 @@
 "use client";
 
 import CircleDash from "@/components/ui/custom/CircleDash";
-import { Marquee } from "@/components/ui/magicui/marquee";
+import { InfiniteMarquee } from "@/components/ui/custom/InfiniteMarquee";
 import { Mouse, BookOpen, Book, Star, Heart, Library } from "lucide-react";
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from "@/components/ui/shadcn/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/shadcn/tabs";
+
+const NAV_TABS = [
+  {
+    label: "المقالات",
+    value: "articles",
+    icon: Book,
+    section: "articles-section",
+  },
+  { label: "الكتب", value: "books", icon: Library, section: "books-section" },
+];
 
 export default function Introduction() {
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+  const scrollToSection = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
 
   return (
@@ -31,14 +33,11 @@ export default function Introduction() {
             <Star className="text-accent w-5 h-5 fill-accent" />
           </div>
         </div>
-
         {/* Main Title */}
         <h1 className="text-5xl md:text-8xl text-accent font-bold mb-6 relative">
           موقع الروضة الإسلامي
-          <div className="absolute -bottom-4 left-1/2 -translate-x- 1/2 w-32 h-2 bg-gradient-to-r from-transparent via-accent/50 to-transparent rounded-full"></div>
         </h1>
-
-        {/* Subtitle with enhanced styling */}
+        {/* Subtitle */}
         <div className="relative mb-8">
           <p className="text-2xl md:text-3xl max-w-4xl  leading-relaxed mb-4 font-medium">
             تجربة قراءة جديدة للكتب الإسلامية
@@ -51,87 +50,69 @@ export default function Introduction() {
             <Star className="w-5 h-5 fill-accent/50" />
           </div>
         </div>
-
-        {/* Decorative element */}
         <CircleDash />
-
-        {/* Enhanced Navigation Tabs */}
+        {/* Navigation Tabs */}
         <div className="my-5 w-full max-w-3xl">
           <div className="relative">
-            {/* Glowing background effect */}
-
             <Tabs defaultValue="articles" className="relative w-full">
-              <TabsList className="grid w-full grid-cols-2 gap-2 border-2 border-accent/30 rounded-sm h-10 px-2 transition-all duration-500">
-                {[
-                  {
-                    label: "المقالات",
-                    value: "articles",
-                    icon: Book,
-                    section: "articles-section",
-                  },
-                  {
-                    label: "الكتب",
-                    value: "books",
-                    icon: Library,
-                    section: "books-section",
-                  },
-                ].map(({ label, value, icon: Icon, section }) => (
-                  <TabsTrigger
-                    key={value}
-                    value={value}
-                    onClick={() => scrollToSection(section)}
-                    className={`
-          group relative flex items-center justify-center gap-4 text-xl font-bold px-8 rounded-sm overflow-hidden
-          transition-all 
-          text-gray-700 hover:bg-accent/10
-          data-[state=active]:bg-gradient-to-br data-[state=active]:from-accent data-[state=active]:to-accent/90
-          data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:shadow-accent/30
-          data-[state=active]:scale-[1.02]
-        `}
-                  >
-                    <div className="relative flex items-center gap-4 z-10">
-                      <div className="relative">
-                        <Icon className="w-7 h-7 group-hover:scale-110 transition-transform duration-300" />
-                        <div className="absolute inset-0 bg-accent/20 rounded-full blur-md scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <TabsList className="grid w-full grid-cols-2 border-2 border-accent/30 rounded-sm h-10 text-white transition-all duration-500">
+                {NAV_TABS.map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <TabsTrigger
+                      key={tab.value}
+                      value={tab.value}
+                      onClick={() => scrollToSection(tab.section)}
+                      className="text-accent dark:text-accent group relative flex items-center justify-center gap-4 text-xl font-bold px-8 rounded-sm overflow-hidden transition-all hover:bg-accent/10 hover:text-accent border data-[state=active]:scale-[1.02] cursor-pointer"
+                    >
+                      <div className="relative flex items-center gap-4 z-10">
+                        <div className="relative">
+                          <Icon className="w-7 h-7 group-hover:scale-110 transition-transform duration-300" />
+                          <div className="absolute inset-0 bg-accent/20 rounded-full blur-md scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        </div>
+                        <span className="group-hover:translate-x-1 transition-transform duration-300">
+                          {tab.label}
+                        </span>
                       </div>
-                      <span className="group-hover:translate-x-1 transition-transform duration-300">
-                        {label}
-                      </span>
-                    </div>
-                  </TabsTrigger>
-                ))}
+                    </TabsTrigger>
+                  );
+                })}
               </TabsList>
             </Tabs>
           </div>
         </div>
-
-        {/* Enhanced Marquees */}
-        <div className="w-full max-w-6xl space-y-2 my-5">
+        {/* Marquees */}
+        <div className="w-full max-w-6xl space-y-4 my-5">
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-accent/20 via-accent/10 to-accent/20 rounded-2xl blur-xl"></div>
-            <Marquee className="marquee-fast relative bg-gradient-to-r from-accent/70 to-accent text-white rounded-2xl py-2 shadow-lg border border-accent/30">
-              <p className="text-lg px-8">
+            {/* === First Marquees === */}
+            <InfiniteMarquee
+              className="marquee-fast relative bg-gradient-to-r from-accent/70 to-accent text-white rounded-2xl py-2 shadow-lg border border-accent/30"
+              pauseOnHover
+            >
+              <p className="text-lg px-8 whitespace-nowrap">
                 📚 اكتشف كنوز التراث الإسلامي • 🌟 رحلة معرفية شيقة • 📖 كتب
-                منتقاة بعناية • ✨ تجربة قراءة متميزة
+                منتقاة بعناية • ✨ تجربة قراءة متميزة 📚 اكتشف كنوز التراث
+                الإسلامي • 🌟 رحلة معرفية شيقة • 📖 كتب منتقاة بعناية • ✨ تجربة
+                قراءة متميزة
               </p>
-            </Marquee>
+            </InfiniteMarquee>
           </div>
-
           <div className="relative">
             <div className="absolute inset-0 bg-gradient-to-r from-accent/15 via-accent/8 to-accent/15 rounded-2xl blur-xl"></div>
-            <Marquee
+            <InfiniteMarquee
               className="marquee-fast relative bg-gradient-to-l from-accent/70 to-accent text-white rounded-2xl py-2 shadow-lg border border-accent/30"
               reverse
+              pauseOnHover
             >
-              <p className="text-lg px-8">
+              <p className="text-lg px-8 whitespace-nowrap">
                 🕌 علوم شرعية أصيلة • 📚 مكتبة رقمية شاملة • 🌙 تراث إسلامي عريق
                 • 💎 معرفة نافعة مباركة
               </p>
-            </Marquee>
+            </InfiniteMarquee>
           </div>
         </div>
-
-        {/* Enhanced scroll indicator */}
+        {/* Scroll indicator */}
         <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center">
           <div className="text-accent/70 text-sm mb-2 font-medium">
             اكتشف المزيد

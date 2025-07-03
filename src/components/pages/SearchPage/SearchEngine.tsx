@@ -2,30 +2,44 @@
 
 import { useState, useEffect } from "react";
 import useSearch from "@/hooks/useSearch";
-import { Button } from "@/components/ui/shadcn/button";
 import { Input } from "@/components/ui/shadcn/input";
-import { Search } from "lucide-react";
 import SearchResult from "./SearchResult";
 import { Article } from "@/lib/types";
 
 export default function SearchEngine() {
   const [query, setQuery] = useState("");
   const [allArticles, setAllArticles] = useState<Article[]>([]);
+  const [allBooks, setAllBooks] = useState<Article[]>([]);
   const [loadingAll, setLoadingAll] = useState(true);
   const { results, loading } = useSearch(query);
 
-  // Load all articles on component mount
+  // Load all articles and books on component mount
   useEffect(() => {
-    const loadAllArticles = async () => {
+    async function loadAllContent() {
+      setLoadingAll(true);
+      const booksResults: Article[] = [];
+      const articlesResults: Article[] = [];
+      const pushNonTitle = (
+        item: Article,
+        filename: string,
+        target: Article[]
+      ) => {
+        if ((item.type?.toString().toLowerCase().trim?.() ?? "") !== "title") {
+          target.push({
+            type: item.type,
+            id: item.id,
+            title: item.title,
+            content: item.content,
+            filename,
+          });
+        }
+      };
       try {
-        let allResults: Article[] = [];
-
         // Load from BooksJson
         try {
           const booksListRes = await fetch("/Json/Indexes.json");
           const booksList: string[] = await booksListRes.json();
-
-          await Promise.all(
+          await Promise.allSettled(
             booksList
               .filter((f) => f.endsWith(".json"))
               .map(async (filename) => {
@@ -33,17 +47,10 @@ export default function SearchEngine() {
                   const res = await fetch(`/Json/BooksJson/${filename}`);
                   if (!res.ok) return;
                   const data = await res.json();
-                  const articles = Array.isArray(data) ? data : [data];
-
-                  articles.forEach((item: any) => {
-                    allResults.push({
-                      type: item.type,
-                      id: item.id,
-                      title: item.title,
-                      content: item.content,
-                      filename,
-                    });
-                  });
+                  const books = Array.isArray(data) ? data : [data];
+                  books.forEach((item: Article) =>
+                    pushNonTitle(item, filename, booksResults)
+                  );
                 } catch (error) {
                   console.error(`Error fetching book ${filename}:`, error);
                 }
@@ -52,29 +59,20 @@ export default function SearchEngine() {
         } catch (error) {
           console.error("Error loading books:", error);
         }
-
         // Load from ArticlesJson
         try {
           const articlesListRes = await fetch("/Json/ArticlesIndex.json");
           const articlesList: string[] = await articlesListRes.json();
-
-          await Promise.all(
+          await Promise.allSettled(
             articlesList.map(async (filename) => {
               try {
                 const res = await fetch(`/Json/ArticlesJson/${filename}`);
                 if (!res.ok) return;
                 const data = await res.json();
                 const articles = Array.isArray(data) ? data : [data];
-
-                articles.forEach((item: any) => {
-                  allResults.push({
-                    type: item.type,
-                    id: item.id,
-                    title: item.title,
-                    content: item.content,
-                    filename,
-                  });
-                });
+                articles.forEach((item: Article) =>
+                  pushNonTitle(item, filename, articlesResults)
+                );
               } catch (error) {
                 console.error(`Error fetching article ${filename}:`, error);
               }
@@ -83,16 +81,17 @@ export default function SearchEngine() {
         } catch (error) {
           console.error("Error loading articles:", error);
         }
-
-        setAllArticles(allResults);
+        setAllBooks(booksResults);
+        setAllArticles(articlesResults);
       } catch (error) {
-        console.error("Error loading all articles:", error);
+        console.error("Error loading all content:", error);
+        setAllBooks([]);
+        setAllArticles([]);
       } finally {
         setLoadingAll(false);
       }
-    };
-
-    loadAllArticles();
+    }
+    loadAllContent();
   }, []);
 
   return (
@@ -104,9 +103,6 @@ export default function SearchEngine() {
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <Button variant="outline" size="icon" disabled>
-          <Search className="w-5 h-5" />
-        </Button>
       </div>
 
       {loading || loadingAll ? (
@@ -119,15 +115,9 @@ export default function SearchEngine() {
           results={results}
           query={query}
           allArticles={allArticles}
+          allBooks={allBooks}
         />
       )}
-
-      <div className="mt-8 text-center">
-        <p className="text-sm text-muted-foreground">
-          © 2023 موقع الروضة الإسلامي
-        </p>
-        <p className="text-sm text-muted-foreground">جميع الحقوق محفوظة</p>
-      </div>
     </div>
   );
 }

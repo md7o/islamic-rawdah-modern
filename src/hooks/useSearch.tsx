@@ -1,146 +1,127 @@
 // Search hook for searching articles by title or content
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { Article, Section } from "@/lib/types";
 
-// Helper to fetch and search both books and articles
-async function fetchAllContent(query: string): Promise<Article[]> {
-  if (!query || query.length < 2) return [];
-
-  try {
-    let results: Article[] = [];
-
-    // Search in books
-    try {
-      const booksListRes = await fetch("/Json/Indexes.json");
-      const booksList: string[] = await booksListRes.json();
-
-      await Promise.all(
-        booksList
-          .filter((f) => f.endsWith(".json"))
-          .map(async (filename) => {
-            try {
-              const res = await fetch(`/Json/BooksJson/${filename}`);
-              if (!res.ok) return;
-              const data = await res.json();
-              const articles = Array.isArray(data) ? data : [data];
-
-              // Search in title/content for each section
-              articles.forEach((item: Section) => {
-                const searchQuery = query.toLowerCase();
-                const titleMatch = item.title
-                  ?.toLowerCase()
-                  .includes(searchQuery);
-                const contentMatch = item.content
-                  ?.toLowerCase()
-                  .includes(searchQuery);
-
-                if (titleMatch || contentMatch) {
-                  results.push({
-                    type: item.type,
-                    id: item.id,
-                    title: item.title,
-                    content: item.content,
-                    filename, // Add filename to track source
-                  });
-                }
-              });
-            } catch (error) {
-              console.error(`Error fetching book ${filename}:`, error);
-            }
-          })
-      );
-    } catch (error) {
-      console.error("Error loading books for search:", error);
+// Helper to search in a list of sections
+function searchSections(
+  sections: Section[],
+  query: string,
+  filename: string
+): Article[] {
+  const searchQuery = query.toLowerCase();
+  return sections.reduce((acc: Article[], item: Section) => {
+    if (item.type === "title") {
+      return acc;
     }
+    const title = item.title?.toLowerCase() || "";
+    const content = item.content?.toLowerCase() || "";
+    if (title.includes(searchQuery) || content.includes(searchQuery)) {
+      acc.push({
+        type: item.type,
+        id: item.id,
+        title: item.title,
+        content: item.content,
+        filename,
+      });
+    }
+    return acc;
+  }, []);
+}
 
-    // Search in articles
-    try {
-      const articlesListRes = await fetch("/Json/ArticlesIndex.json");
-      const articlesList: string[] = await articlesListRes.json();
+// Helper to fetch and search both books and articles
+const fetchAllContent = async (query: string): Promise<Article[]> => {
+  if (!query || query.length < 2) return [];
+  const results: Article[] = [];
+  const searchQuery = query.toLowerCase();
 
-      await Promise.all(
-        articlesList.map(async (filename) => {
+  // ===== Search in Books =====
+  try {
+    const booksListRes = await fetch("/Json/BooksIndex.json");
+    const booksList: string[] = await booksListRes.json();
+    await Promise.all(
+      booksList
+        .filter((f) => f.endsWith(".json"))
+        .map(async (filename) => {
           try {
-            const res = await fetch(`/Json/ArticlesJson/${filename}`);
+            const res = await fetch(`/Json/BooksJson/${filename}`);
             if (!res.ok) return;
             const data = await res.json();
             const articles = Array.isArray(data) ? data : [data];
-
-            // Search in title/content for each section
-            articles.forEach((item: Section) => {
-              const searchQuery = query.toLowerCase();
-              const titleMatch = item.title
-                ?.toLowerCase()
-                .includes(searchQuery);
-              const contentMatch = item.content
-                ?.toLowerCase()
-                .includes(searchQuery);
-
-              if (titleMatch || contentMatch) {
-                results.push({
-                  type: item.type,
-                  id: item.id,
-                  title: item.title,
-                  content: item.content,
-                  filename, // Add filename to track source
-                });
-              }
-            });
-          } catch (error) {
-            console.error(`Error fetching article ${filename}:`, error);
+            results.push(...searchSections(articles, query, filename));
+          } catch {
+            // Optionally log error
           }
         })
-      );
-    } catch (error) {
-      console.error("Error loading articles for search:", error);
-    }
-
-    // Sort results - prioritize title matches over content matches
-    return results.sort((a, b) => {
-      const aHasTitleMatch = a.title
-        ?.toLowerCase()
-        .includes(query.toLowerCase());
-      const bHasTitleMatch = b.title
-        ?.toLowerCase()
-        .includes(query.toLowerCase());
-
-      if (aHasTitleMatch && !bHasTitleMatch) return -1;
-      if (!aHasTitleMatch && bHasTitleMatch) return 1;
-      return 0;
-    });
-  } catch (error) {
-    console.error("Error in fetchBooks:", error);
-    return [];
+    );
+  } catch {
+    // Optionally log error
   }
-}
+
+  // ===== Search in Articles =====
+  try {
+    const articlesListRes = await fetch("/Json/ArticlesIndex.json");
+    const articlesList: string[] = await articlesListRes.json();
+    await Promise.all(
+      articlesList.map(async (filename) => {
+        try {
+          const res = await fetch(`/Json/ArticlesJson/${filename}`);
+          if (!res.ok) return;
+          const data = await res.json();
+          const articles = Array.isArray(data) ? data : [data];
+          results.push(...searchSections(articles, query, filename));
+        } catch {
+          // Optionally log error
+        }
+      })
+    );
+  } catch {
+    // Optionally log error
+  }
+
+  // Sort results - prioritize title matches over content matches
+  return results.sort((a, b) => {
+    const aHasTitleMatch = a.title?.toLowerCase().includes(searchQuery);
+    const bHasTitleMatch = b.title?.toLowerCase().includes(searchQuery);
+    if (aHasTitleMatch && !bHasTitleMatch) return -1;
+    if (!aHasTitleMatch && bHasTitleMatch) return 1;
+    return 0;
+  });
+};
 
 function useSearch(query: string) {
   const [results, setResults] = useState<Article[]>([]);
   const [loading, setLoading] = useState(false);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+
+  const fetchContent = useCallback(
+    async (q: string) => {
+      setLoading(true);
+      try {
+        const data = await fetchAllContent(q);
+        setResults(data);
+      } catch {
+        setResults([]);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [setResults, setLoading]
+  );
 
   useEffect(() => {
     if (!query || query.length < 2) {
       setResults([]);
+      setLoading(false);
       return;
     }
-
-    setLoading(true);
-
-    // Add debounce to avoid too many API calls
-    const timeoutId = setTimeout(() => {
-      fetchAllContent(query)
-        .then((data: Article[]) => {
-          setResults(data);
-          setLoading(false);
-        })
-        .catch(() => {
-          setResults([]);
-          setLoading(false);
-        });
-    }, 300); // 300ms debounce
-
-    return () => clearTimeout(timeoutId);
-  }, [query]);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => {
+      fetchContent(query);
+    }, 300);
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
+  }, [query, fetchContent]);
 
   return { results, loading };
 }

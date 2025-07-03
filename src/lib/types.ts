@@ -1,4 +1,3 @@
-// Article and Book related types
 export interface Section {
   type: string;
   id?: string;
@@ -21,15 +20,6 @@ export interface Viewer {
   index: number;
   sectionCount: number;
 }
-
-// Theme and UI types
-export interface ThemeContextType {
-  isDark: boolean;
-  toggleTheme: () => void;
-}
-//   sections,
-//   currentChapter,
-//   filename,
 
 export interface BookViewProps {
   sections: Section[];

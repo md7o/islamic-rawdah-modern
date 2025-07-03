@@ -25,18 +25,17 @@
   --sidebar-primary: 240 5.9% 10%;
 
   /* Fonts */
-  --font-Amiri_Arabic: "Amiri", serif;
-  --font-IBMPlexMono: "IBM Plex Mono", monospace;
+  --font-IBMPlexSansArabic: "IBMPlexSansArabic", serif;
 }
 
 body {
-  font-family: var(--font-Amiri_Arabic);
+  font-family: var(--font-IBMPlexSansArabic);
   color: #000000;
   background: var(--color-base-secondary);
 }
 
 .dark body {
-  font-family: var(--font-Amiri_Arabic);
+  font-family: var(--font-IBMPlexSansArabic);
   background: var(--color-base-bg);
   color: #ffffff;
 }

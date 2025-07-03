@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Mono, IBM_Plex_Sans_Arabic, Amiri } from "next/font/google";
+import { IBM_Plex_Sans_Arabic, Amiri } from "next/font/google";
 import "./global.css";
 import Header from "@/components/layout/Header";
 
@@ -8,16 +8,11 @@ const IBMPlexSansArabic = IBM_Plex_Sans_Arabic({
   subsets: ["latin"],
   weight: ["100", "200", "300", "400", "500", "600", "700"],
 });
-const Amiri_Arabic = Amiri({
-  variable: "--font-Amiri",
-  subsets: ["latin"],
-  weight: ["400", "700"],
-});
 
-const IBMPlexMono = IBM_Plex_Mono({
-  variable: "--font-IBMPlexMono",
-  subsets: ["latin"],
-  weight: ["100", "200", "300", "400", "500", "600", "700"],
+const amiri = Amiri({
+  variable: "--font-amiri",
+  subsets: ["latin", "arabic"],
+  weight: ["400", "700"],
 });
 
 export const metadata: Metadata = {
@@ -32,10 +27,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl">
-      <body className={`${Amiri_Arabic.variable} ${IBMPlexMono.variable}`}>
+      <body className={`${IBMPlexSansArabic.variable} ${amiri.variable} `}>
         <Header />
         {/* Add top padding to account for fixed header */}
         <main className="pt-20">{children}</main>
+
+        <footer className="py-10 text-center text-md text-light-span ">
+          جميع الحقوق محفوظة لموقع الروضة الإسلامي 1446هـ - 2025م
+        </footer>
       </body>
     </html>
   );

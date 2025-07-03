@@ -5,6 +5,7 @@ import BookCard from "@/components/ui/custom/BookCard";
 import CircleDash from "@/components/ui/custom/CircleDash";
 import { Newspaper, Sparkles } from "lucide-react";
 import { Viewer } from "@/lib/types";
+import { ContainerLoadingSpinner } from "@/components/ui/custom/LoadingSpinner";
 
 export default function ViewArticles() {
   const router = useRouter();
@@ -94,7 +95,11 @@ export default function ViewArticles() {
         مقالات عامة عن الإسلام والعلوم الشرعية
       </p>
       <CircleDash />
-      {loading && <div className="mt-8">جاري التحميل...</div>}
+      {loading && (
+        <div className="mt-8">
+          <ContainerLoadingSpinner />
+        </div>
+      )}
       {error && <div className="mt-8 text-red-500">{error}</div>}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mt-8">
         {articles.map((article, i) => (

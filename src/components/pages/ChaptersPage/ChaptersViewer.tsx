@@ -5,131 +5,59 @@ import { useParams, useSearchParams, useRouter } from "next/navigation";
 import { ArrowLeft, BookOpen, FileText } from "lucide-react";
 import Link from "next/link";
 import { Section } from "@/lib/types";
+import { FullLoadingSpinner } from "@/components/ui/custom/LoadingSpinner";
 
 export default function ArticleViewer() {
-  const params = useParams();
+  const { filename } = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
-  const filename = params.filename as string;
-
-  console.log("ChaptersViewer - filename:", filename);
-
   const [sections, setSections] = useState<Section[]>([]);
-  const [title, setTitle] = useState<string>("");
+  const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  // Get current chapter from URL
   const chapterParam = searchParams.get("chapter");
   const currentChapter = chapterParam ? parseInt(chapterParam, 10) : null;
 
-  // Helper to navigate to categoryId
   const goToChapter = (idx: number | null) => {
-    if (idx === null) {
-      router.push(`/chapters/${filename}`);
-    } else {
-      // Navigate to /chapters/[filename]/[categoryId]
-      const categoryId = sections[idx]?.id;
-      if (categoryId) {
-        router.push(`/chapters/${filename}/${categoryId}`);
-      } else {
-        // Fallback if no categoryId
-        router.push(`/chapters/${filename}`);
-      }
-    }
+    if (idx === null) return router.push(`/chapters/${filename}`);
+    const categoryId = sections[idx]?.id;
+    router.push(
+      categoryId
+        ? `/chapters/${filename}/${categoryId}`
+        : `/chapters/${filename}`
+    );
   };
 
   useEffect(() => {
-    async function fetchArticleSections() {
-      // Add .json extension if not present
-      const filenameWithExtension = filename.endsWith(".json")
-        ? filename
-        : `${filename}.json`;
-      const res = await fetch(`/Json/ArticlesJson/${filenameWithExtension}`);
-      if (!res.ok) throw new Error(`Failed to load article: ${res.status}`);
-
+    if (!filename) return;
+    setLoading(true);
+    setError(null);
+    const fetchSections = async (base: string) => {
+      const fileStr = Array.isArray(filename) ? filename[0] : filename;
+      const file = fileStr.endsWith(".json") ? fileStr : `${fileStr}.json`;
+      const res = await fetch(`/Json/${base}/${file}`);
+      if (!res.ok) throw new Error();
       const data = await res.json();
-      const articles = Array.isArray(data) ? data : [data];
-
-      // Find the title
-      const titleItem = articles.find((item) => item.type === "title");
-      if (titleItem) {
-        setTitle(titleItem.content);
-      }
-
-      // Get all sections
-      const sectionItems = articles.filter((item) => item.type === "section");
-      setSections(sectionItems);
-      setLoading(false);
-    }
-
-    async function fetchBooksSections() {
-      // Add .json extension if not present
-      const filenameWithExtension = filename.endsWith(".json")
-        ? filename
-        : `${filename}.json`;
-      const res = await fetch(`/Json/BooksJson/${filenameWithExtension}`);
-      if (!res.ok) throw new Error(`Failed to load book: ${res.status}`);
-
-      const data = await res.json();
-      const articles = Array.isArray(data) ? data : [data];
-
-      // Find the title
-      const titleItem = articles.find((item) => item.type === "title");
-      if (titleItem) {
-        setTitle(titleItem.content);
-      }
-
-      // Get all sections
-      const sectionItems = articles.filter((item) => item.type === "section");
-      setSections(sectionItems);
-      setLoading(false);
-    }
-
-    async function fetchData() {
-      if (!filename) return;
-
-      setLoading(true);
-      setError(null);
-      console.log("Attempting to fetch data for filename:", filename);
-
-      // Try to fetch from ArticlesJson first
+      const arr = Array.isArray(data) ? data : [data];
+      setTitle(arr.find((i) => i.type === "title")?.content || "");
+      setSections(arr.filter((i) => i.type === "section"));
+    };
+    (async () => {
       try {
-        console.log("Trying ArticlesJson...");
-        await fetchArticleSections();
-        console.log("Successfully loaded from ArticlesJson");
-        return; // Exit early if successful
-      } catch (articleError) {
-        console.log("ArticlesJson failed, trying BooksJson...", articleError);
-        // If ArticlesJson fails, try BooksJson
+        await fetchSections("ArticlesJson");
+      } catch {
         try {
-          await fetchBooksSections();
-          console.log("Successfully loaded from BooksJson");
-          return; // Exit early if successful
-        } catch (bookError) {
-          console.log("Both ArticlesJson and BooksJson failed", bookError);
+          await fetchSections("BooksJson");
+        } catch {
           setError("Failed to load content from both articles and books");
-          setLoading(false);
         }
       }
-    }
-
-    fetchData();
+      setLoading(false);
+    })();
   }, [filename]);
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-surface-light dark:bg-surface-dark">
-        <div className="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-xl p-8 text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-accent border-t-transparent mx-auto mb-4"></div>
-          <div className="text-xl font-medium">جاري التحميل...</div>
-          <div className="text-sm text-gray-500 mt-2">يرجى الانتظار قليلاً</div>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
+  if (loading) return <FullLoadingSpinner />;
+  if (error)
     return (
       <div className="min-h-screen flex items-center justify-center bg-surface-light dark:bg-surface-dark">
         <div className="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-xl p-8 text-center max-w-md">
@@ -152,7 +80,6 @@ export default function ArticleViewer() {
         </div>
       </div>
     );
-  }
 
   return (
     <div className="min-h-screen ">
