@@ -88,12 +88,7 @@ export default function ViewArticles() {
       <h1 className="text-4xl md:text-7xl text-accent font-bold mb-4">
         قسم المقالات
       </h1>
-      <p
-        className="text-xl md:text-2xl max-w-2xl "
-        style={{ animationDelay: "0.2s" }}
-      >
-        مقالات عامة عن الإسلام والعلوم الشرعية
-      </p>
+
       <CircleDash />
       {loading && (
         <div className="mt-8">

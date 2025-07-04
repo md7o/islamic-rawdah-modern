@@ -53,6 +53,13 @@ export default function Header() {
             <Link href="/about-me">
               <Button variant="link">تعريف بصاحب الموقع</Button>
             </Link>
+            <a
+              href="https://www.al-rawdah.net/vb/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Button variant="link">المنتدى</Button>
+            </a>
             <Button
               variant="ghost"
               size="icon"
@@ -145,6 +152,14 @@ export default function Header() {
             >
               تعريف بصاحب الموقع
             </Link>
+            <a
+              href="https://www.al-rawdah.net/vb/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-white hover:text-accent transition-colors duration-200 font-medium"
+            >
+              المنتدى
+            </a>
           </nav>
         </div>
       </header>

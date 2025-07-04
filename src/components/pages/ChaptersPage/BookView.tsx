@@ -4,9 +4,14 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { BookViewProps } from "@/lib/types";
 import { ParsedContent } from "@/lib/ContentFilters";
 import { ArrowLeft, ArrowRight, BookOpen, Home } from "lucide-react";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { Button } from "@/components/ui/shadcn/button";
 import { Select, SelectItem } from "@/components/ui/shadcn/select";
+import {
+  fetchTotalPages,
+  incrementTotalPages,
+  incrementDailyPages,
+} from "@/lib/api";
 
 export default function BookView({
   sections,
@@ -26,6 +31,7 @@ export default function BookView({
       ? localStorage.getItem("bookview-font-family") || "font-sans"
       : "font-sans"
   );
+  const lastIncrementedChapter = useRef<number | null>(null);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -44,12 +50,22 @@ export default function BookView({
     if (categoryId) router.push(`/chapters/${filename}/${categoryId}`);
   };
 
+  useEffect(() => {
+    if (lastIncrementedChapter.current !== currentChapter) {
+      incrementTotalPages(1).catch(() => {});
+      incrementDailyPages(1).catch(() => {});
+      lastIncrementedChapter.current = currentChapter;
+    }
+  }, [currentChapter]);
+
   if (!sections[currentChapter]) return null;
   const isFirst = currentChapter === 0;
   const isLast = currentChapter === sections.length - 1;
 
   return (
     <article>
+      {/* Total Pages Counter */}
+      <div className="flex justify-end mb-2"></div>
       {/* Font Controls */}
       <div className="flex gap-4 justify-end mb-4 p-4 0 rounded-lg">
         <div className="flex items-center gap-2">

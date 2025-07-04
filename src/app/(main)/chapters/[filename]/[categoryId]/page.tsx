@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import BookView from "@/components/pages/ChaptersPage/BookView";
 import fs from "fs";
 import path from "path";
+import { Metadata } from "next";
 
 interface CategoryPageProps {
   params: {
@@ -67,6 +68,32 @@ async function getArticleData(filename: string, categoryId: string) {
     console.error("Error loading data:", error);
     return null; // File not found or parsing error
   }
+}
+
+export async function generateMetadata({
+  params,
+}: CategoryPageProps): Promise<Metadata> {
+  const { filename, categoryId } = await params;
+
+  const articleData = await getArticleData(filename, categoryId);
+
+  if (!articleData) {
+    return {
+      title: "الصفحة غير موجودة | الروضة الإسلامي",
+    };
+  }
+
+  const { sections, currentChapter } = articleData;
+  const currentSection = sections[currentChapter];
+
+  return {
+    title: `${
+      currentSection.title || `فصل ${currentChapter + 1}`
+    } | الروضة الإسلامي`,
+    description: currentSection.content
+      ? currentSection.content.substring(0, 160)
+      : undefined,
+  };
 }
 
 export default async function CategoryPage({ params }: CategoryPageProps) {
