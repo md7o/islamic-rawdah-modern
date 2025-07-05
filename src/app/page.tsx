@@ -4,7 +4,7 @@ import ViewBooks from "@/components/pages/HomePage/ViewBooks";
 
 export default function Home() {
   return (
-    <>
+    <main>
       <Introduction />
       <div id="articles-section">
         <ViewArticles />
@@ -12,6 +12,6 @@ export default function Home() {
       <div id="books-section">
         <ViewBooks />
       </div>
-    </>
+    </main>
   );
 }

@@ -31,7 +31,7 @@ export const metadata: Metadata = {
     title: "موقع الروضة الإسلامي",
     description:
       "موقع الروضة الإسلامي هو موقع يهدف إلى تقديم محتوى إسلامي متنوع وشامل، يشمل مقالات، كتب، وأبحاث في مختلف مجالات العلوم الشرعية.",
-    url: "https://r3.al-rawdah.net",
+    url: "https://r2.al-rawdah.net",
     siteName: "موقع الروضة الإسلامية",
     images: [
       {
@@ -57,7 +57,7 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  metadataBase: new URL("https://r3.al-rawdah.net"),
+  metadataBase: new URL("https://r2.al-rawdah.net"),
 };
 
 export default function RootLayout({
