@@ -1,9 +1,14 @@
 import type { Metadata } from "next";
-import { IBM_Plex_Sans_Arabic, Amiri } from "next/font/google";
+import {
+  IBM_Plex_Sans_Arabic,
+  Amiri,
+  Kufam,
+  Aref_Ruqaa,
+} from "next/font/google";
 import "./global.css";
 import Header from "@/components/layout/Header";
-import FooterCounter from "@/components/layout/FooterCounter";
-import { PagesProvider } from "@/context/PagesContext";
+// import FooterCounter from "@/components/layout/FooterCounter";
+// import { PagesProvider } from "@/context/PagesContext";
 
 const IBMPlexSansArabic = IBM_Plex_Sans_Arabic({
   variable: "--font-IBMPlexSansArabic",
@@ -13,6 +18,18 @@ const IBMPlexSansArabic = IBM_Plex_Sans_Arabic({
 
 const amiri = Amiri({
   variable: "--font-amiri",
+  subsets: ["latin", "arabic"],
+  weight: ["400", "700"],
+});
+
+const kufam = Kufam({
+  variable: "--font-readex-pro",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+});
+
+const ArefRuqaa = Aref_Ruqaa({
+  variable: "--font-aref-ruqaa",
   subsets: ["latin", "arabic"],
   weight: ["400", "700"],
 });
@@ -31,7 +48,7 @@ export const metadata: Metadata = {
     title: "موقع الروضة الإسلامي",
     description:
       "موقع الروضة الإسلامي هو موقع يهدف إلى تقديم محتوى إسلامي متنوع وشامل، يشمل مقالات، كتب، وأبحاث في مختلف مجالات العلوم الشرعية.",
-    url: "https://r2.al-rawdah.net",
+    url: "https://r5.al-rawdah.net",
     siteName: "موقع الروضة الإسلامية",
     images: [
       {
@@ -57,7 +74,7 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  metadataBase: new URL("https://r2.al-rawdah.net"),
+  metadataBase: new URL("https://r5.al-rawdah.net"),
 };
 
 export default function RootLayout({
@@ -67,19 +84,20 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="ar" dir="rtl">
-      <body className={`${IBMPlexSansArabic.variable} ${amiri.variable} `}>
-        <PagesProvider>
-          <Header />
-          {/* Add top padding to account for fixed header */}
-          <main className="pt-20">{children}</main>
-          <footer className="py-10 text-center text-md text-light-span">
+      <body
+        className={`${IBMPlexSansArabic.variable} ${amiri.variable} ${kufam.variable} ${ArefRuqaa.variable}`}
+      >
+        {/* <PagesProvider> */}
+        <Header />
+        {/* Add top padding to account for fixed header */}
+        <main className="mt-20">{children}</main>
+        {/* <footer className="py-10 text-center text-md text-light-span">
             <FooterCounter />
-            <p className="pt-10 pb-5">
-              {" "}
-              جميع الحقوق محفوظة لموقع الروضة الإسلامي 1446هـ - 2025م
-            </p>
-          </footer>
-        </PagesProvider>
+            </footer> */}
+        {/* </PagesProvider> */}
+        <p className="px-5 pt-10 pb-5 md:text-xl text-sm text-center">
+          جميع الحقوق محفوظة لموقع الروضة الإسلامي 1446هـ - 2025م
+        </p>
       </body>
     </html>
   );

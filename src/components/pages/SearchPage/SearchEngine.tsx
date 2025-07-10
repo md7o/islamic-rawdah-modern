@@ -5,6 +5,7 @@ import useSearch from "@/hooks/useSearch";
 import { Input } from "@/components/ui/shadcn/input";
 import SearchResult from "./SearchResult";
 import { Article } from "@/lib/types";
+import { Search, X } from "lucide-react";
 
 export default function SearchEngine() {
   const [query, setQuery] = useState("");
@@ -96,13 +97,32 @@ export default function SearchEngine() {
 
   return (
     <div>
-      <div className="flex items-center justify-center gap-2 w-full max-w-md mx-auto my-8">
-        <Input
-          placeholder="ابحث في الموقع..."
-          className="flex-1"
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-        />
+      {/* Enhanced Search Input */}
+      <div className="relative w-full max-w-2xl mx-auto my-8 px-4">
+        <div className="relative group">
+          {/* Search Icon */}
+          <div className="absolute left-4 top-1/2 -translate-y-1/2 z-10">
+            <Search className="w-5 h-5 text-gray-400 group-focus-within:text-accent transition-colors duration-200" />
+          </div>
+
+          {/* Input Field */}
+          <Input
+            placeholder="ابحث في الكتب والمقالات..."
+            className="w-full h-14 px-5 text-lg bg-surface-light dark:bg-surface-dark border-2 border-gray-200 dark:border-gray-500 rounded-2xl shadow-lg focus:border-accent focus:ring-2 focus:ring-accent/20 transition-all duration-300 placeholder:text-gray-400 text-right"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+
+          {/* Clear Button */}
+          {query && (
+            <button
+              onClick={() => setQuery("")}
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 p-1 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-full transition-colors duration-200 group"
+            >
+              <X className="w-4 h-4 text-gray-400 group-hover:text-gray-600 dark:group-hover:text-gray-300" />
+            </button>
+          )}
+        </div>
       </div>
 
       {loading || loadingAll ? (

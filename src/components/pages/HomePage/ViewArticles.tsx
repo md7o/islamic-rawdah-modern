@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import BookCard from "@/components/ui/custom/BookCard";
 import CircleDash from "@/components/ui/custom/CircleDash";
-import { Newspaper, Sparkles } from "lucide-react";
+import { Newspaper } from "lucide-react";
 import { Viewer } from "@/lib/types";
 import { ContainerLoadingSpinner } from "@/components/ui/custom/LoadingSpinner";
 
@@ -12,6 +12,9 @@ export default function ViewArticles() {
   const [articles, setArticles] = useState<Viewer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [clickLoadingIndex, setClickLoadingIndex] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     const fetchFileManifest = async (): Promise<string[]> => {
@@ -72,7 +75,8 @@ export default function ViewArticles() {
     loadAllArticles();
   }, []);
 
-  const handleArticleClick = (filename: string) => {
+  const handleArticleClick = (filename: string, idx: number) => {
+    setClickLoadingIndex(idx); // Show loading spinner for this card
     router.push(`/chapters/${filename}`);
   };
 
@@ -83,11 +87,10 @@ export default function ViewArticles() {
         <div className="relative bg-gradient-to-br from-accent to-accent/80 p-6 rounded-2xl shadow-2xl">
           <Newspaper className="text-white w-12 h-12" />
         </div>
-        <Sparkles className="absolute -top-2 -right-2 text-amber-200 w-6 h-6 animate-pulse" />
       </div>
-      <h1 className="text-4xl md:text-7xl text-accent font-bold mb-4">
+      <h2 className="text-4xl md:text-7xl text-accent font-bold mb-4">
         قسم المقالات
-      </h1>
+      </h2>
 
       <CircleDash />
       {loading && (
@@ -101,10 +104,10 @@ export default function ViewArticles() {
           <BookCard
             key={`article-${i}`}
             iconVariant="mystery"
-            icon="Newspaper"
+            icon={clickLoadingIndex === i ? "Spinner" : "Newspaper"}
             title={article.content}
             chapters={article.sectionCount}
-            onClick={() => handleArticleClick(article.filename)}
+            onClick={() => handleArticleClick(article.filename, i)}
           />
         ))}
       </div>

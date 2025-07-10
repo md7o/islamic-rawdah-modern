@@ -58,12 +58,12 @@ export const BooksType: BooksTypeProps[] = [
   {
     title: "سياسة شرعية",
     file: ["shora.json", "kafaa.json", "message001.json"],
-    background: "philosophy",
+    background: "romance",
   },
   {
     title: "دعوة",
     file: ["hiwarat1.json", "hiwarat2.json", "dawa.json", "balaga.json"],
-    background: "hadith",
+    background: "mystery",
   },
   {
     title: "فقه",
@@ -77,7 +77,7 @@ export const BooksType: BooksTypeProps[] = [
   },
   {
     title: "تفسير",
-    file: ["hood.json", "jawhara.json"],
+    file: ["hood.json", "alnoor.json"],
     background: "quran",
   },
   {
@@ -85,10 +85,19 @@ export const BooksType: BooksTypeProps[] = [
     file: ["g1.json", "g2.json"],
     background: "literature",
   },
-
+  {
+    title: "شخصيات",
+    file: ["per.json"],
+    background: "science",
+  },
   {
     title: "ثقافة عامة",
     file: ["Iqra.json"],
-    background: "science",
+    background: "biography",
+  },
+  {
+    title: "قصائد",
+    file: ["poet.json"],
+    background: "hadith",
   },
 ];

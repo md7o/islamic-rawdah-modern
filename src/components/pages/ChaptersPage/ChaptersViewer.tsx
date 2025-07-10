@@ -6,8 +6,9 @@ import { ArrowLeft, BookOpen, FileText } from "lucide-react";
 import Link from "next/link";
 import { Section } from "@/lib/types";
 import { FullLoadingSpinner } from "@/components/ui/custom/LoadingSpinner";
+import { Loader2 } from "lucide-react";
 
-export default function ArticleViewer() {
+export default function ChaptersViewer() {
   const { filename } = useParams();
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -15,10 +16,12 @@ export default function ArticleViewer() {
   const [title, setTitle] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [chapterLoading, setChapterLoading] = useState(false);
   const chapterParam = searchParams.get("chapter");
   const currentChapter = chapterParam ? parseInt(chapterParam, 10) : null;
 
   const goToChapter = (idx: number | null) => {
+    setChapterLoading(true);
     if (idx === null) return router.push(`/chapters/${filename}`);
     const categoryId = sections[idx]?.id;
     router.push(
@@ -32,6 +35,10 @@ export default function ArticleViewer() {
     if (!filename) return;
     setLoading(true);
     setError(null);
+
+    // Scroll to top when entering the page
+    window.scrollTo({ top: 0, behavior: "smooth" });
+
     const fetchSections = async (base: string) => {
       const fileStr = Array.isArray(filename) ? filename[0] : filename;
       const file = fileStr.endsWith(".json") ? fileStr : `${fileStr}.json`;
@@ -82,10 +89,16 @@ export default function ArticleViewer() {
     );
 
   return (
-    <div className="min-h-screen ">
+    <div className="min-h-screen relative">
+      {/* Fullscreen loading overlay */}
+      {chapterLoading && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+          <Loader2 className="animate-spin text-white" size={64} />
+        </div>
+      )}
       <div className="container mx-auto px-4 max-w-7xl py-8">
         {/* Breadcrumb Navigation */}
-        <nav className="mb-6">
+        <nav className="mb-6 flex justify-end">
           <Link
             href="/"
             className="group inline-flex items-center gap-3 px-5 py-3 bg-surface-light dark:bg-surface-dark rounded-xl shadow-md hover:shadow-lg  text-accent hover:text-accent/90 transition-all duration-300 hover:scale-105 hover:-translate-y-0.5 font-medium"
@@ -107,9 +120,9 @@ export default function ArticleViewer() {
                   <BookOpen className="w-10 h-10" />
                 </div>
                 <div className="flex-1">
-                  <h1 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight">
+                  <h2 className="text-xl md:text-2xl lg:text-3xl font-bold leading-tight">
                     {title || "مقال إسلامي"}
-                  </h1>
+                  </h2>
 
                   <div className="flex items-center gap-2 mt-2">
                     <FileText className="w-5 h-5" />
@@ -136,7 +149,7 @@ export default function ArticleViewer() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {sections.map((section, idx) => (
                 <button
-                  key={section.id || idx}
+                  key={idx}
                   className="group bg-surface-light dark:bg-surface-dark rounded-2xl shadow-sm hover:shadow-md cursor-pointer transition-all duration-300 p-6 hover:scale-[1.02] hover:-translate-y-1 "
                   onClick={() => goToChapter(idx)}
                 >

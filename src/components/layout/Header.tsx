@@ -25,7 +25,7 @@ export default function Header() {
   return (
     <>
       <header className="fixed top-0 left-0 w-full z-[9999] bg-surface-light dark:bg-surface-dark shadow">
-        <div className="flex justify-between xl:justify-around items-center p-3 md:px-6">
+        <div className="flex justify-between xl:justify-around items-center p-3 md:px-6 ">
           {/* Logo */}
           <Link
             href="/"

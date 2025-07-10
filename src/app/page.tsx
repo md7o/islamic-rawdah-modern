@@ -1,6 +1,7 @@
 import Introduction from "@/components/pages/HomePage/Introduction";
 import ViewArticles from "@/components/pages/HomePage/ViewArticles";
 import ViewBooks from "@/components/pages/HomePage/ViewBooks";
+import BackToTopButton from "@/components/ui/custom/backToTopButton";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
       <div id="books-section">
         <ViewBooks />
       </div>
+      <BackToTopButton />
     </main>
   );
 }

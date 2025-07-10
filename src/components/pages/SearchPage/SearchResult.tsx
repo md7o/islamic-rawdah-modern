@@ -1,5 +1,5 @@
 import { Article } from "@/lib/types";
-import { Book, BookOpen, FileText } from "lucide-react";
+import { Book, FileText } from "lucide-react";
 import { useState, useEffect } from "react";
 import SearchPagination from "./SearchPagination";
 import { useRouter } from "next/navigation";
@@ -90,20 +90,20 @@ export default function SearchResult({
   };
 
   return (
-    <div className="max-w-6xl mx-auto px-4">
+    <div className="max-w-6xl mx-auto px-3 sm:px-4 lg:px-6">
       {/* Simple Header Section */}
-      <div className="mb-8">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">
+      <div className="mb-6 sm:mb-8">
+        <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold text-gray-900 dark:text-white mb-3 sm:mb-4">
           {query ? "نتائج البحث" : "جميع الكتب المقالات"}
         </h2>
-        <div className="flex items-center justify-between flex-wrap gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
           <div className="text-gray-600 dark:text-gray-400">
-            <p>
+            <p className="text-sm sm:text-base">
               <span className="font-semibold text-accent">{totalResults}</span>{" "}
               {query ? (
                 <>
                   نتيجة للبحث عن
-                  <span className="mx-2 font-medium text-gray-900 dark:text-white">
+                  <span className="mx-1 sm:mx-2 font-medium text-gray-900 dark:text-white break-words">
                     &quot;{query}&quot;
                   </span>
                 </>
@@ -112,19 +112,19 @@ export default function SearchResult({
               )}
             </p>
           </div>
-          <div className="text-sm text-gray-500 dark:text-gray-400">
+          <div className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 order-first sm:order-last">
             صفحة {currentPage} من {totalPages} • عرض {totalResults}
           </div>
         </div>
-        <div className="mt-4 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
+        <div className="mt-3 sm:mt-4 h-px bg-gradient-to-r from-transparent via-gray-300 dark:via-gray-600 to-transparent"></div>
       </div>
 
       {/* Enhanced Article Grid */}
-      <div className="grid gap-8">
+      <div className="grid gap-4 sm:gap-6 lg:gap-8">
         {currentResults.map((article, idx) => (
           <article
             key={`${article.id} + ${idx}`}
-            className="group relative bg-gradient-to-br from-surface-light to-surface-light/80 dark:from-surface-dark dark:to-surface-dark/80 rounded-3xl shadow-lg hover:shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-all duration-500 hover:scale-[1.02] hover:-translate-y-2 cursor-pointer"
+            className="group relative bg-gradient-to-br from-surface-light to-surface-light/80 dark:from-surface-dark dark:to-surface-dark/80 rounded-2xl sm:rounded-3xl shadow-lg hover:shadow-2xl border border-gray-200/50 dark:border-gray-700/50 overflow-hidden transition-all duration-500 hover:scale-[1.01] sm:hover:scale-[1.02] hover:-translate-y-1 sm:hover:-translate-y-2 cursor-pointer"
             onClick={() => {
               if (article.filename && article.id) {
                 const baseUrl = `/chapters/${article.filename.replace(
@@ -138,29 +138,29 @@ export default function SearchResult({
             }}
           >
             {/* Decorative Elements */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-accent/10 to-transparent rounded-full -translate-y-16 translate-x-16 group-hover:scale-150 transition-transform duration-700"></div>
-            <div className="absolute bottom-0 left-0 w-24 h-24 bg-gradient-to-tr from-accent/5 to-transparent rounded-full translate-y-12 -translate-x-12 group-hover:scale-150 transition-transform duration-700"></div>
+            <div className="absolute top-0 right-0 w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-bl from-accent/10 to-transparent rounded-full -translate-y-12 translate-x-12 sm:-translate-y-16 sm:translate-x-16 group-hover:scale-150 transition-transform duration-700"></div>
+            <div className="absolute bottom-0 left-0 w-16 h-16 sm:w-24 sm:h-24 bg-gradient-to-tr from-accent/5 to-transparent rounded-full translate-y-8 -translate-x-8 sm:translate-y-12 sm:-translate-x-12 group-hover:scale-150 transition-transform duration-700"></div>
 
             {/* Header Section */}
-            <div className="relative p-8 border-b border-gray-200/30 dark:border-gray-700/30">
-              <div className="flex items-start gap-6">
-                <div className="relative">
-                  <div className="bg-gradient-to-br from-accent/20 to-accent/30 p-4 rounded-2xl group-hover:from-accent/30 group-hover:to-accent/40 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+            <div className="relative p-4 sm:p-6 lg:p-8 border-b border-gray-200/30 dark:border-gray-700/30">
+              <div className="flex items-start gap-3 sm:gap-4 lg:gap-6">
+                <div className="relative flex-shrink-0">
+                  <div className="bg-gradient-to-br from-accent/20 to-accent/30 p-3 sm:p-4 rounded-xl sm:rounded-2xl group-hover:from-accent/30 group-hover:to-accent/40 transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
                     {allBooks.some(
                       (b) =>
                         b.id === article.id && b.filename === article.filename
                     ) ? (
-                      <Book className="w-7 h-7 text-accent drop-shadow-sm" />
+                      <Book className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-accent drop-shadow-sm" />
                     ) : (
-                      <FileText className="w-7 h-7 text-accent drop-shadow-sm" />
+                      <FileText className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-accent drop-shadow-sm" />
                     )}
                   </div>
-                  <div className="absolute -top-1 -right-1 w-3 h-3 bg-accent rounded-full animate-pulse"></div>
+                  <div className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-accent rounded-full animate-pulse"></div>
                 </div>
 
                 <div className="flex-1 min-w-0">
-                  <div className="flex flex-wrap items-center gap-3 mb-4">
-                    <span className="relative inline-flex items-center px-4 py-2 bg-gradient-to-r from-accent/15 to-accent/25 text-accent text-sm font-bold rounded-full border border-accent/30">
+                  <div className="flex flex-wrap items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
+                    <span className="relative inline-flex items-center px-3 py-1.5 sm:px-4 sm:py-2 bg-gradient-to-r from-accent/15 to-accent/25 text-accent text-xs sm:text-sm font-bold rounded-full border border-accent/30">
                       <span className="absolute inset-0 bg-gradient-to-r from-accent/5 to-accent/10 rounded-full blur-sm"></span>
                       <span className="relative">
                         {allBooks.some(
@@ -174,7 +174,7 @@ export default function SearchResult({
                     </span>
                   </div>
 
-                  <h3 className="text-2xl font-bold text-gray-900 dark:text-white group-hover:text-accent transition-colors line-clamp-3 leading-relaxed mb-2">
+                  <h3 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 dark:text-white group-hover:text-accent transition-colors line-clamp-2 sm:line-clamp-3 leading-relaxed mb-2">
                     {getArticleTitle(article)}
                   </h3>
                 </div>
@@ -182,9 +182,9 @@ export default function SearchResult({
             </div>
 
             {/* Enhanced Content Preview */}
-            <div className="relative p-8">
+            <div className="relative p-4 sm:p-6 lg:p-8">
               <div className="prose prose-gray dark:prose-invert max-w-none">
-                <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-lg line-clamp-4">
+                <p className="text-gray-700 dark:text-gray-300 leading-relaxed text-sm sm:text-base lg:text-lg line-clamp-3 sm:line-clamp-4">
                   {getArticleContent(article)}
                 </p>
               </div>

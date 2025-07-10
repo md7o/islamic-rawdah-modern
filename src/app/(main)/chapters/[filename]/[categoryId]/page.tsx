@@ -3,12 +3,16 @@ import BookView from "@/components/pages/ChaptersPage/BookView";
 import fs from "fs";
 import path from "path";
 import { Metadata } from "next";
+import { Section } from "@/lib/types";
+
+// Simple in-memory cache for file contents
+const fileCache = new Map<string, unknown>();
 
 interface CategoryPageProps {
-  params: {
+  params: Promise<{
     filename: string;
     categoryId: string;
-  };
+  }>;
 }
 
 async function getArticleData(filename: string, categoryId: string) {
@@ -18,42 +22,50 @@ async function getArticleData(filename: string, categoryId: string) {
       ? filename
       : `${filename}.json`;
 
-    // Try to read from ArticlesJson first
-    let filePath = path.join(
-      process.cwd(),
-      "public",
-      "Json",
-      "ArticlesJson",
-      filenameWithExtension
-    );
-
-    let fileContents: string;
-
-    try {
-      fileContents = fs.readFileSync(filePath, "utf8");
-    } catch (error) {
-      // If not found in ArticlesJson, try BooksJson
-      filePath = path.join(
+    // Check cache first
+    let data;
+    if (fileCache.has(filenameWithExtension)) {
+      data = fileCache.get(filenameWithExtension);
+    } else {
+      // Try to read from ArticlesJson first
+      let filePath = path.join(
         process.cwd(),
         "public",
         "Json",
-        "BooksJson",
+        "ArticlesJson",
         filenameWithExtension
       );
-      fileContents = fs.readFileSync(filePath, "utf8");
+
+      let fileContents: string;
+
+      try {
+        fileContents = await fs.promises.readFile(filePath, "utf8");
+      } catch {
+        // If not found in ArticlesJson, try BooksJson
+        filePath = path.join(
+          process.cwd(),
+          "public",
+          "Json",
+          "BooksJson",
+          filenameWithExtension
+        );
+        fileContents = await fs.promises.readFile(filePath, "utf8");
+      }
+
+      data = JSON.parse(fileContents);
+      fileCache.set(filenameWithExtension, data); // Cache it
     }
 
-    const data = JSON.parse(fileContents);
     const articles = Array.isArray(data) ? data : [data];
 
     // Get all sections
     const sectionItems = articles.filter(
-      (item: any) => item.type === "section"
+      (item: Section) => item.type === "section"
     );
 
     // Find the chapter index by categoryId
     const chapterIndex = sectionItems.findIndex(
-      (section: any) => section.id === categoryId
+      (section: Section) => section.id === categoryId
     );
 
     if (chapterIndex === -1) {

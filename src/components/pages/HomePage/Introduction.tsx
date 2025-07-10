@@ -2,8 +2,8 @@
 
 import CircleDash from "@/components/ui/custom/CircleDash";
 import { InfiniteMarquee } from "@/components/ui/custom/InfiniteMarquee";
+import NavigationButtons from "@/components/ui/custom/NavigationButtons";
 import { Mouse, BookOpen, Book, Star, Heart, Library } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/shadcn/tabs";
 
 const NAV_TABS = [
   {
@@ -16,10 +16,6 @@ const NAV_TABS = [
 ];
 
 export default function Introduction() {
-  const scrollToSection = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
     <section className="min-h-screen relative overflow-hidden mb-20">
       <div className="relative z-10 py-20 px-4 flex flex-col items-center justify-center text-center min-h-screen">
@@ -51,36 +47,8 @@ export default function Introduction() {
           </div>
         </div>
         <CircleDash />
-        {/* Navigation Tabs */}
-        <div className="my-5 w-full max-w-3xl">
-          <div className="relative">
-            <Tabs defaultValue="articles" className="relative w-full">
-              <TabsList className="grid w-full grid-cols-2 border-2 border-accent/30 rounded-sm h-10 text-white transition-all duration-500">
-                {NAV_TABS.map((tab) => {
-                  const Icon = tab.icon;
-                  return (
-                    <TabsTrigger
-                      key={tab.value}
-                      value={tab.value}
-                      onClick={() => scrollToSection(tab.section)}
-                      className="text-accent dark:text-accent group relative flex items-center justify-center gap-4 text-xl font-bold px-8 rounded-sm overflow-hidden transition-all hover:bg-accent/10 hover:text-accent border data-[state=active]:scale-[1.02] cursor-pointer"
-                    >
-                      <div className="relative flex items-center gap-4 z-10">
-                        <div className="relative">
-                          <Icon className="w-7 h-7 group-hover:scale-110 transition-transform duration-300" />
-                          <div className="absolute inset-0 bg-accent/20 rounded-full blur-md scale-150 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                        </div>
-                        <span className="group-hover:translate-x-1 transition-transform duration-300">
-                          {tab.label}
-                        </span>
-                      </div>
-                    </TabsTrigger>
-                  );
-                })}
-              </TabsList>
-            </Tabs>
-          </div>
-        </div>
+        {/* Navigation Buttons */}
+        <NavigationButtons buttons={NAV_TABS} />
         {/* Marquees */}
         <div className="w-full max-w-6xl space-y-4 my-5">
           <div className="relative">

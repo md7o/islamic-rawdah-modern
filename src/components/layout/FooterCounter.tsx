@@ -1,6 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
-import { usePages } from "@/context/PagesContext";
+import { usePages } from "../../context/PagesContext";
 import { BookOpen, Calendar, Users } from "lucide-react";
 
 export default function FooterCounter() {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import * as React from "react";
 
 export interface SelectProps {
@@ -45,7 +46,7 @@ export function Select({
         aria-haspopup="listbox"
         aria-expanded={open}
       >
-        <span className="text-sm font-medium">{selectedLabel}</span>
+        <span className=" font-medium">{selectedLabel}</span>
         <svg
           className={`w-4 h-4 ml-2 transition-transform duration-200 ${
             open ? "rotate-180" : ""
@@ -80,7 +81,6 @@ export function Select({
 }
 
 export function SelectItem({
-  value,
   children,
   onClick,
   selected,

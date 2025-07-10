@@ -4,10 +4,86 @@ import BookCard from "@/components/ui/custom/BookCard";
 import CircleDash from "@/components/ui/custom/CircleDash";
 import { Viewer } from "@/lib/types";
 import { BooksType } from "@/lib/BooksType";
-import { Book, Sparkles } from "lucide-react";
+import { Book } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ContainerLoadingSpinner } from "@/components/ui/custom/LoadingSpinner";
+import NavigationButtons from "@/components/ui/custom/NavigationButtons";
+
+const BOOKS_NAV_TABS = [
+  {
+    label: "رحلات",
+    value: "rihla",
+    icon: Book,
+    section: "rihla-section",
+  },
+  {
+    label: "عقيدة",
+    value: "aqeedah",
+    icon: Book,
+    section: "aqeedah-section",
+  },
+  {
+    label: "تربية",
+    value: "tarbiyah",
+    icon: Book,
+    section: "tarbiyah-section",
+  },
+  {
+    label: "سياسة شرعية",
+    value: "politics",
+    icon: Book,
+    section: "politics-section",
+  },
+  {
+    label: "دعوة",
+    value: "da'wah",
+    icon: Book,
+    section: "da'wah-section",
+  },
+  {
+    label: "فقه",
+    value: "fiqh",
+    icon: Book,
+    section: "fiqh-section",
+  },
+  {
+    label: "مقاصد",
+    value: "maqasid",
+    icon: Book,
+    section: "maqasid-section",
+  },
+  {
+    label: "تفسير",
+    value: "tafsir",
+    icon: Book,
+    section: "tafsir-section",
+  },
+  {
+    label: "نحو",
+    value: "nahw",
+    icon: Book,
+    section: "nahw-section",
+  },
+  {
+    label: "شخصيات",
+    value: "shakhsiyat",
+    icon: Book,
+    section: "shakhsiyat-section",
+  },
+  {
+    label: "ثقافة عامة",
+    value: "thaqafah",
+    icon: Book,
+    section: "thaqafah-section",
+  },
+  {
+    label: "قصائد",
+    value: "qasid",
+    icon: Book,
+    section: "qasid-section",
+  },
+];
 
 interface BooksByCategory {
   [categoryTitle: string]: {
@@ -21,6 +97,9 @@ export default function ViewBooks() {
   const [booksByCategory, setBooksByCategory] = useState<BooksByCategory>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [clickLoadingIndex, setClickLoadingIndex] = useState<number | null>(
+    null
+  );
 
   useEffect(() => {
     const fetchArticleFile = async (filename: string): Promise<Viewer[]> => {
@@ -84,10 +163,32 @@ export default function ViewBooks() {
     loadBooksByCategory();
   }, []);
 
-  const handleArticleClick = (filename: string) => {
-    // Remove .json extension if present for cleaner URL
+  const handleArticleClick = (filename: string, idx: number) => {
+    setClickLoadingIndex(idx); // Show loading spinner for this card
     const cleanFilename = filename.replace(".json", "");
     router.push(`/chapters/${cleanFilename}`);
+  };
+
+  // Create a mapping function to get section ID from category title
+  const getSectionId = (categoryTitle: string): string => {
+    const sectionMap: { [key: string]: string } = {
+      رحلات: "rihla-section",
+      عقيدة: "aqeedah-section",
+      تربية: "tarbiyah-section",
+      "سياسة شرعية": "politics-section",
+      دعوة: "da'wah-section",
+      فقه: "fiqh-section",
+      مقاصد: "maqasid-section",
+      تفسير: "tafsir-section",
+      نحو: "nahw-section",
+      شخصيات: "shakhsiyat-section",
+      "ثقافة عامة": "thaqafah-section",
+      قصائد: "qasid-section",
+    };
+    return (
+      sectionMap[categoryTitle] ||
+      `${categoryTitle.toLowerCase().replace(/\s+/g, "-")}-section`
+    );
   };
 
   return (
@@ -98,13 +199,19 @@ export default function ViewBooks() {
         <div className="relative bg-gradient-to-br from-accent to-accent/80 p-6 rounded-2xl shadow-2xl">
           <Book className="text-white w-12 h-12" />
         </div>
-        <Sparkles className="absolute -top-2 -right-2 text-amber-200 w-6 h-6 animate-pulse" />
       </div>
-      <h1 className="text-4xl md:text-7xl text-accent font-bold mb-4">
+      <h2 className="text-4xl md:text-7xl text-accent font-bold mb-4">
         قسم الكتب
-      </h1>
+      </h2>
 
       <CircleDash />
+
+      <NavigationButtons
+        buttons={BOOKS_NAV_TABS}
+        layout="grid"
+        maxWidth="max-w-7xl"
+        gridCols="grid-cols-2 md:grid-cols-3 lg:grid-cols-4 "
+      />
 
       {loading && (
         <div className="mt-8">
@@ -119,7 +226,10 @@ export default function ViewBooks() {
             ([categoryTitle, categoryData]) => (
               <div key={categoryTitle} className="space-y-4">
                 {/* Category Header */}
-                <div className={`space-y-10 pt-20`}>
+                <div
+                  id={getSectionId(categoryTitle)}
+                  className={`space-y-10 pt-20`}
+                >
                   <div className="flex justify-center items-center">
                     <div>
                       <h2 className="text-5xl ">{categoryTitle}</h2>
@@ -143,11 +253,11 @@ export default function ViewBooks() {
                             | "fantasy"
                             | undefined
                         }
-                        icon="Book"
+                        icon={clickLoadingIndex === i ? "Spinner" : "Book"}
                         title={book.content}
                         chapters={book.sectionCount}
                         category={categoryTitle}
-                        onClick={() => handleArticleClick(book.filename)}
+                        onClick={() => handleArticleClick(book.filename, i)}
                       />
                     ))}
                   </div>

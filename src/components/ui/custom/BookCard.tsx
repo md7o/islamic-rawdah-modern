@@ -1,22 +1,23 @@
 import { Card } from "@/components/ui/shadcn/card";
-import { Book, ChevronDown, Newspaper } from "lucide-react";
+import { Book, ChevronDown, Newspaper, Loader2 } from "lucide-react";
+
+type IconVariant =
+  | "romance"
+  | "mystery"
+  | "fantasy"
+  | "islamic"
+  | "science"
+  | "history"
+  | "literature"
+  | "philosophy"
+  | "biography"
+  | "hadith"
+  | "quran"
+  | "fiqh";
 
 interface BookCardProps {
-  iconVariant?:
-    | "romance"
-    | "mystery"
-    | "fantasy"
-    | "islamic"
-    | "science"
-    | "history"
-    | "literature"
-    | "philosophy"
-    | "biography"
-    | "hadith"
-    | "quran"
-    | "fiqh";
-  icon?: "Book" | "Newspaper";
-
+  iconVariant?: IconVariant;
+  icon?: "Book" | "Newspaper" | "Spinner";
   title?: string;
   chapters?: number;
   onClick?: () => void;
@@ -31,22 +32,22 @@ export default function BookCard({
   onClick,
   category = "عام",
 }: BookCardProps) {
-  // Default gradients for each variant
-  const defaultGradients: Record<string, [string, string]> = {
-    romance: ["#713030", "#9c4e4e"], // Deep red/burgundy
-    mystery: ["#a78bfa", "#60a5fa"], // Purple to blue
-    fantasy: ["#34d399", "#22d3ee"], // Emerald to cyan
-    islamic: ["#059669", "#10b981"], // Islamic green variants
-    science: ["#3b82f6", "#1e40af"], // Blue gradient for science
-    history: ["#92400e", "#d97706"], // Amber/brown for history
-    literature: ["#7c3aed", "#a855f7"], // Purple gradient for literature
-    philosophy: ["#374151", "#6b7280"], // Gray gradient for philosophy
-    biography: ["#dc2626", "#ef4444"], // Red gradient for biography
-    hadith: ["#166534", "#22c55e"], // Deep green for hadith
-    quran: ["#064e3b", "#047857"], // Dark emerald for Quran
-    fiqh: ["#7c2d12", "#ea580c"], // Orange-brown for fiqh
+  // Tailwind gradient classes for each variant
+  const gradientClasses: Record<string, string> = {
+    romance: "bg-gradient-to-br from-[#713030] to-[#5B2C2CFF]",
+    mystery: "bg-gradient-to-br from-purple-500 to-purple-950",
+    fantasy: "bg-gradient-to-br from-green-600 to-cyan-900",
+    islamic: "bg-gradient-to-br from-emerald-500 to-emerald-900",
+    science: "bg-gradient-to-br from-blue-500 to-blue-950",
+    history: "bg-gradient-to-br from-amber-600 to-amber-900",
+    literature: "bg-gradient-to-br from-purple-600 to-purple-950",
+    philosophy: "bg-gradient-to-br from-gray-400 to-gray-700",
+    biography: "bg-gradient-to-br from-red-600 to-red-900",
+    hadith: "bg-gradient-to-br from-green-900 to-green-500",
+    quran: "bg-gradient-to-br from-emerald-600 to-emerald-800",
+    fiqh: "bg-gradient-to-br from-blue-900 to-cyan-600",
   };
-  const [from, to] = defaultGradients[iconVariant];
+  const gradientClass = gradientClasses[iconVariant] || gradientClasses.romance;
 
   // Arabic pluralization for 'فصل'
   function getFaslLabel(n?: number) {
@@ -65,21 +66,23 @@ export default function BookCard({
         {/* Book Cover */}
         <div className="relative">
           <div
-            className="w-full h-64 rounded-3xl rounded-b-none flex items-center justify-center relative overflow-hidden "
-            style={{
-              background: `linear-gradient(135deg, ${from} 0%, ${to} 100%)`,
-            }}
+            className={`w-full h-64 rounded-3xl rounded-b-none flex items-center justify-center relative overflow-hidden ${gradientClass}`}
           >
             {/* Subtle pattern overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-black/10"></div>
 
-            {/* Book icon */}
+            {/* Book icon or spinner */}
             {icon === "Book" && (
               <Book className="text-white/95 drop-shadow-2xl " size={76} />
             )}
-
             {icon === "Newspaper" && (
               <Newspaper className="text-white/95 drop-shadow-2xl " size={76} />
+            )}
+            {icon === "Spinner" && (
+              <Loader2
+                className="text-white/95 drop-shadow-2xl animate-spin"
+                size={76}
+              />
             )}
 
             {/* Genre badge */}
@@ -96,9 +99,9 @@ export default function BookCard({
           {/* Title and Chapters Row */}
           <div className="flex flex-row items-start justify-between gap-4">
             <div className="flex-1">
-              <h1 className="text-lg text-right line-clamp-2 group-hover:text-accent transition-colors duration-300">
+              <p className="text-lg text-right line-clamp-2 group-hover:text-accent transition-colors duration-300">
                 {title}
-              </h1>
+              </p>
               <p className="text-md pt-2 text-accent text-right">
                 {chapters} {getFaslLabel(chapters)}
               </p>

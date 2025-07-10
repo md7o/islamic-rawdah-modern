@@ -1,4 +1,4 @@
-import React, { useLayoutEffect, useRef } from "react";
+import React, { useLayoutEffect, useEffect } from "react";
 import Image from "next/image";
 
 const STRETCHABLE_PATTERN =
@@ -28,7 +28,11 @@ export function ParsedContent({
   highlight?: string;
   fontFamily?: string;
 }) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  // Remove duplicate declarations if present
+  const [activeFootnote, setActiveFootnote] = React.useState<number | null>(
+    null
+  );
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -59,20 +63,53 @@ export function ParsedContent({
     (_, note) => {
       footnoteCounter++;
       footnotes.push({ id: footnoteCounter, content: note.trim() });
-      return `[[${footnoteCounter}]]`;
+      return `<sup class="footnote-ref text-amber-500 font-bold text-lg mx-1 cursor-pointer hover:text-amber-600 transition-colors" data-footnote-id="${footnoteCounter}">${footnoteCounter}</sup>`;
     }
   );
   const processedBlocks = processedContent
     .split(/\[sh\]|\[\/sh\]/)
     .filter(Boolean);
 
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    function handleClick(e: MouseEvent) {
+      const target = e.target as HTMLElement;
+      if (target.classList.contains("footnote-ref")) {
+        const id = target.getAttribute("data-footnote-id");
+        if (id) {
+          const el = document.getElementById(`footnote-${id}`);
+          if (el) {
+            el.scrollIntoView({ behavior: "smooth", block: "center" });
+            el.classList.add(
+              "bg-amber-500",
+              "dark:bg-amber-900/30",
+              "rounded-lg"
+            );
+            setTimeout(() => {
+              el.classList.remove(
+                "bg-amber-500",
+                "dark:bg-amber-900/30",
+                "rounded-lg"
+              );
+            }, 1200);
+          }
+        }
+      }
+    }
+    container.addEventListener("click", handleClick);
+    return () => container.removeEventListener("click", handleClick);
+  }, [containerRef, processedBlocks]);
+
   return (
     <div ref={containerRef} className="px-2 sm:px-4 md:px-6 ">
+      {/* Content blocks */}
       {processedBlocks.map((block, bi) => {
         const matches = [...block.matchAll(/\[shtr\](.*?)\[\/shtr\]/g)];
         if (!matches.length)
           return (
             <div key={bi}>
+              {/* Render content with footnote refs clickable */}
               {processContentWithImages(block).map((part, i) =>
                 part.type === "image" ? (
                   <ContentImage
@@ -156,6 +193,7 @@ export function ParsedContent({
           </div>
         );
       })}
+      {/* Footnotes */}
       {footnotes.length > 0 && (
         <div className="mt-8 pt-6 border-t border-gray-200 dark:border-gray-700">
           <h3 className="text-lg font-semibold mb-4 text-right text-gray-800 dark:text-gray-200">
@@ -165,9 +203,15 @@ export function ParsedContent({
             {footnotes.map((f) => (
               <div
                 key={f.id}
-                className="flex gap-3 text-lg leading-relaxed text-gray-700 dark:text-gray-300 text-right"
+                id={`footnote-${f.id}`}
+                className={`flex gap-3 text-lg leading-relaxed text-gray-700 dark:text-gray-300 text-right transition-all duration-300 ${
+                  activeFootnote === f.id
+                    ? "bg-yellow-500 dark:bg-yellow-900/30 "
+                    : ""
+                }`}
+                onAnimationEnd={() => setActiveFootnote(null)}
               >
-                <span className="text-amber-200 font-semibold min-w-[1.5rem] text-center">
+                <span className="text-amber-500 font-semibold min-w-[1.5rem] text-center">
                   {f.id} -
                 </span>
                 <span className="flex-1">{f.content}</span>
@@ -189,7 +233,6 @@ function ContentImage({ src, alt = "صورة" }: { src: string; alt?: string }) 
         width={800}
         height={600}
         className="max-w-full h-auto rounded-lg shadow-md mx-auto"
-        style={{ width: "auto", height: "auto" }}
         loading="lazy"
       />
     </div>
@@ -237,17 +280,17 @@ function formatBracketedContentWithoutImages(text: string): string {
   result = result.replace(
     /\[\[(\d+)\]\]/g,
     (_, n) =>
-      `<sup class=\"text-amber-200 font-bold text-lg mx-1 cursor-pointer hover:text-amber-300 transition-colors\">${n}</sup>`
+      `<sup class=\"text-amber-500 font-bold text-lg mx-1 cursor-pointer hover:text-amber-300 transition-colors\">${n}</sup>`
   );
   result = result.replace(
     /\[(?!s2\]|s3\])([^\]]+)\]/g,
     (_, c) =>
-      `<span class=\"inline-block text-blue-800 dark:text-blue-300 text-xl  py-1  mx-1\">${c}</span>`
+      `<span class=\"inline-block text-blue-800 dark:text-blue-300  py-1  mx-1\">${c}</span>`
   );
   result = result.replace(
     /\(\([^)]+\)\)/g,
     (m, c) =>
-      `<span class=\"inline-block text-blue-800 dark:text-blue-300 text-lg px-2 py-1 text-normal mx-1 \">(${c})</span>`
+      `<span class=\"inline-block text-blue-800 dark:text-blue-300 px-2 py-1 text-normal mx-1 \">(${c})</span>`
   );
   result = result.replace(
     /\{([^}]+)\}/g,

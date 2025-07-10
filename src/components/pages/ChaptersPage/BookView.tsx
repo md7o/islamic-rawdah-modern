@@ -1,24 +1,25 @@
 "use client";
 
-import { useRouter, useSearchParams } from "next/navigation";
-import { BookViewProps } from "@/lib/types";
+import { useSearchParams } from "next/navigation";
+import { Section } from "@/lib/types";
 import { ParsedContent } from "@/lib/ContentFilters";
 import { ArrowLeft, ArrowRight, BookOpen, Home } from "lucide-react";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/shadcn/button";
 import { Select, SelectItem } from "@/components/ui/shadcn/select";
-import {
-  fetchTotalPages,
-  incrementTotalPages,
-  incrementDailyPages,
-} from "@/lib/api";
+import Link from "next/link";
+
+interface BookViewProps {
+  sections: Section[];
+  currentChapter: number;
+  filename: string;
+}
 
 export default function BookView({
   sections,
-  currentChapter,
+  currentChapter: initialChapter,
   filename,
 }: BookViewProps) {
-  const router = useRouter();
   const searchParams = useSearchParams();
   const highlightQuery = searchParams.get("q") || "";
   const [fontSize, setFontSize] = useState(() =>
@@ -31,7 +32,11 @@ export default function BookView({
       ? localStorage.getItem("bookview-font-family") || "font-sans"
       : "font-sans"
   );
-  const lastIncrementedChapter = useRef<number | null>(null);
+  const [currentChapter, setCurrentChapter] = useState(initialChapter);
+
+  useEffect(() => {
+    setCurrentChapter(initialChapter);
+  }, [initialChapter, sections]);
 
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -45,18 +50,14 @@ export default function BookView({
   }, [sections, currentChapter, filename]);
 
   const goToChapter = (idx: number | null) => {
-    if (idx === null) return router.push(`/chapters/${filename}`);
-    const categoryId = sections[idx]?.id;
-    if (categoryId) router.push(`/chapters/${filename}/${categoryId}`);
-  };
-
-  useEffect(() => {
-    if (lastIncrementedChapter.current !== currentChapter) {
-      incrementTotalPages(1).catch(() => {});
-      incrementDailyPages(1).catch(() => {});
-      lastIncrementedChapter.current = currentChapter;
+    if (idx === null) {
+      setCurrentChapter(0);
+      return;
     }
-  }, [currentChapter]);
+    if (idx >= 0 && idx < sections.length) {
+      setCurrentChapter(idx);
+    }
+  };
 
   if (!sections[currentChapter]) return null;
   const isFirst = currentChapter === 0;
@@ -64,32 +65,46 @@ export default function BookView({
 
   return (
     <article>
-      {/* Total Pages Counter */}
-      <div className="flex justify-end mb-2"></div>
       {/* Font Controls */}
-      <div className="flex gap-4 justify-end mb-4 p-4 0 rounded-lg">
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            حجم الخط:
-          </label>
-          <Select value={fontSize} onValueChange={setFontSize}>
-            <SelectItem value="text-base">صغير</SelectItem>
-            <SelectItem value="text-lg">متوسط</SelectItem>
-            <SelectItem value="text-xl">كبير</SelectItem>
-            <SelectItem value="text-2xl">كبير جداً</SelectItem>
-          </Select>
+      <div className="flex flex-col items-center sm:flex-row gap-3 sm:gap-4 justify-between mb-4 p-3 sm:p-4  dark:bg-surface-dark rounded-lg">
+        <div className="flex flex-row items-center gap-4 sm:gap-6">
+          <div className="flex items-center gap-2 justify-between sm:justify-start">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+              حجم الخط:
+            </label>
+            <div className="min-w-0 flex-1 sm:flex-none sm:w-auto">
+              <Select value={fontSize} onValueChange={setFontSize}>
+                <SelectItem value="text-lg">صغير</SelectItem>
+                <SelectItem value="text-xl">متوسط</SelectItem>
+                <SelectItem value="text-2xl">كبير</SelectItem>
+                <SelectItem value="text-3xl">كبير جداً</SelectItem>
+              </Select>
+            </div>
+          </div>
+          <div className="flex items-center gap-2 justify-between sm:justify-start">
+            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
+              نوع الخط:
+            </label>
+            <div className="min-w-0 flex-1 sm:flex-none sm:w-auto">
+              <Select value={fontFamily} onValueChange={setFontFamily}>
+                <SelectItem value="font-sans">Sans</SelectItem>
+                <SelectItem value="font-[kufam]">Kufam</SelectItem>
+                <SelectItem value="font-[amiri]">Amiri</SelectItem>
+                <SelectItem value="font-[Aref_Ruqaa]">Ruqaa</SelectItem>
+              </Select>
+            </div>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <label className="text-sm font-medium text-gray-700 dark:text-gray-300">
-            الخط:
-          </label>
-          <Select value={fontFamily} onValueChange={setFontFamily}>
-            <SelectItem value="font-sans">Sans</SelectItem>
-            <SelectItem value="font-serif">Serif</SelectItem>
-            <SelectItem value="font-[amiri]">Amiri</SelectItem>
-            <SelectItem value="font-mono">Mono</SelectItem>
-          </Select>
-        </div>
+
+        <Link
+          href={""}
+          className="group inline-flex items-center gap-3 px-5 py-1 bg-base-secondary dark:bg-base-bg rounded-xl shadow-md hover:shadow-lg  text-accent hover:text-accent/90 transition-all duration-300 "
+        >
+          <div className="bg-accent/10 p-2 rounded-lg group-hover:bg-accent/20 transition-colors">
+            <ArrowLeft className="w-5 h-5" />
+          </div>
+          <span>العودة إلى الرئيسية</span>
+        </Link>
       </div>
       {/* Main Content */}
       <div className="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-lg overflow-hidden ">
@@ -100,9 +115,9 @@ export default function BookView({
               <BookOpen className="w-6 h-6 text-accent" />
             </div>
             <div className="flex-1">
-              <h1 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white text-right">
+              <h2 className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white text-right">
                 {sections[currentChapter].title || `فصل ${currentChapter + 1}`}
-              </h1>
+              </h2>
               <p className="text-sm text-gray-600 dark:text-gray-400 text-right mt-1">
                 الفصل {currentChapter + 1} من {sections.length}
               </p>
@@ -135,14 +150,13 @@ export default function BookView({
             السابق
           </Button>
 
-          <Button
-            className="flex items-center gap-2 px-6 py-3 rounded-xl bg-black/20 dark:bg-white/20  text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 hover:scale-105 active:scale-95"
-            onClick={() => goToChapter(null)}
-          >
-            <Home className="w-5 h-5" />
-            العودة للفهرس
-          </Button>
-
+          {/* Link to ChaptersViewe r */}
+          <Link href={`/chapters/${filename}`}>
+            <Button className="flex items-center gap-2 px-6 py-3 rounded-xl bg-black/20 dark:bg-white/20  text-gray-700 dark:text-gray-300 font-medium transition-all duration-200 hover:scale-105 active:scale-95">
+              <Home className="w-5 h-5" />
+              العودة للفهرس
+            </Button>
+          </Link>
           <Button
             className={`flex items-center gap-2 px-6 py-3 rounded-xl font-medium transition-all duration-200 ${
               isLast
@@ -176,15 +190,15 @@ export default function BookView({
             <ArrowRight className="w-4 h-4" />
             <span className="text-sm">السابق</span>
           </Button>
-
-          <Button
-            className="flex items-center gap-2 px-4 py-3 cursor-pointer hover:scale-105 rounded-xl bg-black/20 dark:bg-white/20 font-medium  transition-all duration-200 active:scale-95 mx-2"
-            onClick={() => goToChapter(null)}
-          >
-            <Home className="w-4 h-4" />
-            <span className="text-sm">الفهرس</span>
-          </Button>
-
+          <Link href={`/chapters/${filename}`}>
+            <Button
+              className="flex items-center gap-2 px-4 py-3 cursor-pointer hover:scale-105 rounded-xl bg-black/20 dark:bg-white/20 font-medium  transition-all duration-200 active:scale-95 mx-2"
+              onClick={() => goToChapter(null)}
+            >
+              <Home className="w-4 h-4" />
+              <span className="text-sm">الفهرس</span>
+            </Button>
+          </Link>
           <Button
             className={`flex items-center gap-2 px-4 py-3 rounded-xl font-medium transition-all duration-200 flex-1 ml-2 ${
               isLast
